@@ -1,3 +1,8 @@
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_DATA_PATH = BASE_DIR / "data" / "hemogramas_clean.csv"
+
 APP_TITLE = "Sistema de Análisis de Datos"
 APP_LAYOUT = "wide"
 ALLOWED_EXTENSIONS = ["csv", "xlsx"]

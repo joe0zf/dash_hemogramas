@@ -1,6 +1,15 @@
 import pandas as pd
 
-from .config import ALLOWED_EXTENSIONS, MAX_FILE_SIZE
+from .config import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, DEFAULT_DATA_PATH
+
+def load_default():
+    return pd.read_csv(DEFAULT_DATA_PATH)
+
+def load_dataset(file=None):
+    if file is not None:
+        return load_data(file)
+    return load_default()
+
 def load_data(file):
     if file is None:
         return None
