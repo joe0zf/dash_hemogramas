@@ -2,3 +2,6 @@
 .venv/
 notebooks/
 data/raw/*
+pages/*
+__pycache__/
+*.pyc

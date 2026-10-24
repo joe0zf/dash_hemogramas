@@ -1,38 +1,32 @@
 import streamlit as st
 
+from sections import concentracion, home, prevalencia, severidad, tipo_anemia
+
 st.set_page_config(
     page_title="Dashboard de Emogramas en Animales",
     page_icon="📊",
     layout="wide"
 )
 
-st.title("Dashboard de Emogramas en Animales")
-st.write("Bienvenido al dashboard de emogramas en animales.")
+st.title("HemoVet - Bethoven")
+st.write("Perfil de salud hematológica de la población atendida")
+# st.write("Para iniciar carga tu dataset")
 
-st.sidebar.title("Menú principal")
-opcion = st.sidebar.selectbox(
-    "Seleccione una opción",
-    ["Inicio", "Cargar datos", "Análisis", "Informacion", "Sobre nosotros"]
-)
-
-if opcion == "Inicio":
-    st.header("Página de inicio")
-    st.success("Aplicación funcionando correctamente.")
-
-elif opcion == "Cargar datos":
-    st.header("Carga de archivos")
-
-    archivo = st.file_uploader(
-        "Seleccione un archivo CSV",
-        type=["csv"]
+with st.sidebar:
+    prevalencia.render_sidebar()
+    st.divider()
+    st.title("Menú principal")
+    opcion = st.radio(
+        "Seleccione una sección",
+        ["Inicio", "Prevalencia", "Tipo de anemia", "Concentración", "Severidad"],
+        label_visibility="collapsed",
     )
 
-    if archivo is not None:
-        import pandas as pd
-
-        df = pd.read_csv(archivo)
-        st.dataframe(df)
-
-elif opcion == "Análisis":
-    st.header("Análisis de datos")
-    st.info("Próximamente implementaremos esta sección.")
+paginas = {
+    "Inicio": home.render,
+    "Prevalencia": prevalencia.render,
+    "Tipo de anemia": tipo_anemia.render,
+    "Concentración": concentracion.render,
+    "Severidad": severidad.render,
+}
+paginas[opcion]()
