@@ -1,2 +1,4 @@
 .vscode/
 .venv/
+notebooks/
+data/raw/*
