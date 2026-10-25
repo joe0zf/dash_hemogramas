@@ -30,7 +30,7 @@ def render(df):
 
     st.sidebar.subheader("Sobre la Severidad")
     st.sidebar.info(
-        "Leve: Control y ajuste nutricional.\n\n"
+        "Leve: Control nutricional.\n\n"
         "Moderada: Tratamiento y monitoreo.\n\n"
         "Severa: Atención clínica prioritaria."
     )
