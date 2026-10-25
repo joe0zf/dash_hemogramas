@@ -11,19 +11,16 @@ def render(df):
         st.info("Carga un dataset desde el menú lateral para visualizar esta sección.")
         return
 
-    col_severidad = "severidad"
-    col_hb = "hemoglobina"
-    col_grupo = "especie"
-
-    if col_severidad not in df.columns:
-        st.warning(f"No se encontró la columna '{col_severidad}'. Columnas actuales: {list(df.columns)}")
-        return
+    col_severidad = "severidad_anemia"
+    col_hb = "HGB (g/dL)"
+    col_especie = "especie"
+    col_edad = "grupo_etario"
 
     grados = ["Leve", "Moderada", "Severa"]
     df_anemia = df[df[col_severidad].isin(grados)]
 
     if df_anemia.empty:
-        df_anemia = df.copy()
+        df_anemia = df[df["f_anemia"] == 1] if "f_anemia" in df.columns else df.dropna(subset=[col_severidad])
 
     colores = {
         "Leve": "#F1C40F",
@@ -63,32 +60,46 @@ def render(df):
 
     with col2:
         st.subheader("Hemoglobina según Severidad")
-        if col_hb in df_anemia.columns:
-            fig_box = px.box(
-                df_anemia,
-                x=col_severidad,
-                y=col_hb,
-                color=col_severidad,
-                color_discrete_map=colores
-            )
-            st.plotly_chart(fig_box, use_container_width=True)
-        else:
-            st.write(f"Columna '{col_hb}' no disponible.")
+        fig_box = px.box(
+            df_anemia,
+            x=col_severidad,
+            y=col_hb,
+            color=col_severidad,
+            color_discrete_map=colores
+        )
+        st.plotly_chart(fig_box, use_container_width=True)
 
-    if col_grupo in df_anemia.columns:
+    col3, col4 = st.columns(2)
+
+    with col3:
         st.subheader("Severidad por Especie")
-        resumen_grupo = df_anemia.groupby([col_grupo, col_severidad]).size().reset_index(name="Casos")
+        resumen_especie = df_anemia.groupby([col_especie, col_severidad]).size().reset_index(name="Casos")
 
-        fig_bar = px.bar(
-            resumen_grupo,
-            x=col_grupo,
+        fig_especie = px.bar(
+            resumen_especie,
+            x=col_especie,
             y="Casos",
             color=col_severidad,
             barmode="group",
             color_discrete_map=colores
         )
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_especie, use_container_width=True)
+
+    with col4:
+        st.subheader("Severidad por Grupo Etario")
+        resumen_edad = df_anemia.groupby([col_edad, col_severidad]).size().reset_index(name="Casos")
+
+        fig_edad = px.bar(
+            resumen_edad,
+            x=col_edad,
+            y="Casos",
+            color=col_severidad,
+            barmode="group",
+            color_discrete_map=colores
+        )
+        st.plotly_chart(fig_edad, use_container_width=True)
 
     st.subheader("Registros de casos severos")
+    columnas_tabla = ["ID muestra", "Nombre", "fecha", "especie", "sexo", "grupo_etario", "HGB (g/dL)", "HCT (%)", "tipo_anemia", "severidad_anemia"]
     df_severos = df_anemia[df_anemia[col_severidad] == "Severa"]
-    st.dataframe(df_severos, use_container_width=True)
+    st.dataframe(df_severos[columnas_tabla], use_container_width=True, hide_index=True)
