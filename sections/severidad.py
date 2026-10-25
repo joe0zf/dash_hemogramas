@@ -1,22 +1,29 @@
 import streamlit as st
-import streamlit as st
 import pandas as pd
 import plotly.express as px
 
 
-def show(df):
+def render(df):
     st.title("Severidad de la Anemia")
     st.write("Análisis de la gravedad en los pacientes diagnosticados.")
 
-    st.sidebar.subheader("Sobre la Severidad")
-    st.sidebar.info(
-        "Leve: Requiere control y mejora nutricional.\n\n"
-        "Moderada: Necesita tratamiento y seguimiento.\n\n"
-        "Severa: Caso crítico de atención prioritaria."
-    )
+    if df is None or df.empty:
+        st.info("Carga un dataset desde el menú lateral para visualizar esta sección.")
+        return
+
+    col_severidad = "severidad"
+    col_hb = "hemoglobina"
+    col_grupo = "especie"
+
+    if col_severidad not in df.columns:
+        st.warning(f"No se encontró la columna '{col_severidad}'. Columnas actuales: {list(df.columns)}")
+        return
 
     grados = ["Leve", "Moderada", "Severa"]
-    df_anemia = df[df["severidad"].isin(grados)]
+    df_anemia = df[df[col_severidad].isin(grados)]
+
+    if df_anemia.empty:
+        df_anemia = df.copy()
 
     colores = {
         "Leve": "#F1C40F",
@@ -25,9 +32,9 @@ def show(df):
     }
 
     total = len(df_anemia)
-    leves = len(df_anemia[df_anemia["severidad"] == "Leve"])
-    moderadas = len(df_anemia[df_anemia["severidad"] == "Moderada"])
-    severas = len(df_anemia[df_anemia["severidad"] == "Severa"])
+    leves = len(df_anemia[df_anemia[col_severidad] == "Leve"])
+    moderadas = len(df_anemia[df_anemia[col_severidad] == "Moderada"])
+    severas = len(df_anemia[df_anemia[col_severidad] == "Severa"])
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total con Anemia", total)
@@ -41,7 +48,7 @@ def show(df):
 
     with col1:
         st.subheader("Porcentaje por Severidad")
-        conteo = df_anemia["severidad"].value_counts().reset_index()
+        conteo = df_anemia[col_severidad].value_counts().reset_index()
         conteo.columns = ["Severidad", "Cantidad"]
 
         fig_pie = px.pie(
@@ -56,32 +63,32 @@ def show(df):
 
     with col2:
         st.subheader("Hemoglobina según Severidad")
-        fig_box = px.box(
-            df_anemia,
-            x="severidad",
-            y="hemoglobina",
-            color="severidad",
+        if col_hb in df_anemia.columns:
+            fig_box = px.box(
+                df_anemia,
+                x=col_severidad,
+                y=col_hb,
+                color=col_severidad,
+                color_discrete_map=colores
+            )
+            st.plotly_chart(fig_box, use_container_width=True)
+        else:
+            st.write(f"Columna '{col_hb}' no disponible.")
+
+    if col_grupo in df_anemia.columns:
+        st.subheader("Severidad por Especie")
+        resumen_grupo = df_anemia.groupby([col_grupo, col_severidad]).size().reset_index(name="Casos")
+
+        fig_bar = px.bar(
+            resumen_grupo,
+            x=col_grupo,
+            y="Casos",
+            color=col_severidad,
+            barmode="group",
             color_discrete_map=colores
         )
-        st.plotly_chart(fig_box, use_container_width=True)
+        st.plotly_chart(fig_bar, use_container_width=True)
 
-    st.subheader("Severidad según Sexo")
-    resumen_sexo = df_anemia.groupby(["sexo", "severidad"]).size().reset_index(name="Casos")
-
-    fig_bar = px.bar(
-        resumen_sexo,
-        x="sexo",
-        y="Casos",
-        color="severidad",
-        barmode="group",
-        color_discrete_map=colores
-    )
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-    st.subheader("Casos severos")
-    df_severos = df_anemia[df_anemia["severidad"] == "Severa"]
-    st.dataframe(df_severos)
-
-def render() -> None:
-    st.header("Sobre nosotros")
-    st.write("Esta aplicación reúne herramientas para revisar y analizar hemogramas en animales.")
+    st.subheader("Registros de casos severos")
+    df_severos = df_anemia[df_anemia[col_severidad] == "Severa"]
+    st.dataframe(df_severos, use_container_width=True)
