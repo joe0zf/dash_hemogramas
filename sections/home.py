@@ -1,28 +1,20 @@
 import streamlit as st
 import pandas as pd
 
+from src.config import ACENTO, GRIS
+from src.utils import _as_bool, _kpi, _subtitulo
+
 FLAGS_RELEVANTES = [
     "f_microcitosis", "f_macrocitosis", "f_mchc_baja", "f_eritrocitosis",
     "f_leucopenia", "f_leucocitosis", "f_linfopenia", "f_linfocitosis",
     "f_neu_alto", "f_neu_bajo", "f_trombocitopenia", "f_trombocitosis",
 ]
 
-PASOS = [
-    ("1 · Prevalencia",    "¿Qué tan común es la anemia?"),
-    ("2 · Tipo de anemia", "¿De qué tipo es?"),
-    ("3 · Concentración",  "¿En quién se concentra?"),
-    ("4 · Severidad",      "¿Quiénes requieren atención?"),
-]
-
-
-def _as_bool(serie: pd.Series) -> pd.Series:
-    return serie.astype(str).str.lower().isin(["true", "1"])
-
-
 def render(df) -> None:
     if df is None or len(df) == 0:
         st.warning("No hay datos cargados. Sube un CSV en el panel lateral.")
         return
+
     ana = df[_as_bool(df["incluir_analisis"])] if "incluir_analisis" in df.columns else df
     n_total, n_ana = len(df), len(ana)
 
@@ -50,26 +42,14 @@ def render(df) -> None:
         ana["especie"].mode().iloc[0]
         if "especie" in ana.columns and not ana["especie"].dropna().empty else "—"
     )
-
-    st.markdown("#### Panorama general")
+    st.divider()
+    _subtitulo("Panorama general")
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Muestras analizadas", f"{n_ana}")
-    c2.metric("Con anemia", f"{pct_anemia:.0f} %")
-    c3.metric(
-        "Con otra alteración", f"{pct_otra:.0f} %",
-        help="Excluye la bandera 'MCHC alta', marcada en casi todas las muestras "
-             "por un posible problema de calibración.",
-    )
-    c4.metric("Especie más frecuente", especie_top)
-
+    _kpi(c1, "Muestras analizadas", f"{n_ana}")
+    _kpi(c2, "Con anemia", f"{pct_anemia:.0f} %", color=ACENTO) 
+    _kpi(c3, "Con otra alteración", f"{pct_otra:.0f} %")
+    _kpi(c4, "Especie más frecuente", str(especie_top))
     st.divider()
 
-    st.markdown("#### Cómo recorrer el dashboard")
-    st.caption("El análisis sigue cuatro pasos. Usa el **menú principal** del panel lateral.")
-    cols = st.columns(4)
-    for col, (titulo, pregunta) in zip(cols, PASOS):
-        with col:
-            st.markdown(f"**{titulo}**")
-            st.caption(pregunta)
+    
 
-    st.divider()

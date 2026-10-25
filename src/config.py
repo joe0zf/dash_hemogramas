@@ -9,3 +9,6 @@ ALLOWED_EXTENSIONS = ["csv", "xlsx"]
 MAX_FILE_SIZE = 50
 DEFAULT_ROWS = 10
 MAX_COLUMNS = 50
+
+ACENTO = "#C0392B"   # rojo: anemia
+GRIS   = "#CFD2D6"   # gris: datos auxiliares

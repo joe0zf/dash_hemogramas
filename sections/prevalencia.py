@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
-ACENTO = "#C0392B"   # rojo: anemia
-GRIS   = "#CFD2D6"   # gris: datos auxiliares
+from src.config import ACENTO, GRIS
+from src.utils import _as_bool, _kpi, _subtitulo
 
 FLAGS_PANORAMA = {
     "f_anemia": "Anemia",
@@ -20,18 +19,6 @@ FLAGS_PANORAMA = {
     "f_neu_alto": "Neutrofilia",
     "f_trombocitosis": "Trombocitosis",
 }
-
-
-def _as_bool(serie: pd.Series) -> pd.Series:
-    return serie.astype(str).str.lower().isin(["true", "1"])
-
-
-def _subtitulo(texto_html: str) -> None:
-    st.markdown(
-        f"<p style='font-size:1.05rem; font-weight:600; margin-bottom:0.3rem'>{texto_html}</p>",
-        unsafe_allow_html=True,
-    )
-
 
 def render(df) -> None:
     if df is None or len(df) == 0:
