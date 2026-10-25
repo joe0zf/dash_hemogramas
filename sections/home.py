@@ -18,7 +18,7 @@ def render(df) -> None:
     ana = df[_as_bool(df["incluir_analisis"])] if "incluir_analisis" in df.columns else df
     n_total, n_ana = len(df), len(ana)
 
-    st.title("HemoVet — Bethoven")
+    st.title("HemoVet - GENVET-VH50")
     st.subheader("Perfil de salud hematológica de la población atendida")
 
     periodo = ""
