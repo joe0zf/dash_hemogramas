@@ -29,17 +29,20 @@ def render(df):
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Distribución de Hemoglobina: Sanos vs Anemia")
-        fig_hist = px.histogram(
-            df_hgb,
-            x="HGB (g/dL)",
+        st.subheader("Nivel de Hemoglobina: Sanos vs Anemia")
+        df_hgb_val = df_hgb[df_hgb["HGB (g/dL)"] > 1.0]
+
+        fig_box = px.box(
+            df_hgb_val,
+            x="especie",
+            y="HGB (g/dL)",
             color="tiene_anemia",
-            barmode="overlay",
-            nbins=20,
+            points="all",
             color_discrete_map={"No": "#2ECC71", "Sí": "#E74C3C"},
-            labels={"tiene_anemia": "Tiene Anemia"}
+            labels={"especie": "Especie", "HGB (g/dL)": "Hemoglobina (g/dL)", "tiene_anemia": "Anemia"}
         )
-        st.plotly_chart(fig_hist, use_container_width=True)
+        fig_box.update_layout(boxmode="group")
+        st.plotly_chart(fig_box, use_container_width=True)
 
     with col2:
         st.subheader("Mapa de Cromía por Especie (Pacientes con Anemia)")
