@@ -4,7 +4,7 @@ from sections import concentracion, home, prevalencia, severidad, tipo_anemia
 from src import data_loader
 
 st.set_page_config(
-    page_title="Dashboard de Emogramas en Animales",
+    page_title="Dashboard de Hemogramas en Animales",
     page_icon="🩸",
     layout="wide"
 )
