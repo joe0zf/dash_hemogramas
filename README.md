@@ -48,7 +48,7 @@ hemovet-dashboard/
 ├── .venv/        # Virtual environment (not tracked by Git)
 ├── data/         # Raw dataset (read-only)
 ├── src/          # Shared, importable logic (data loading, transforms, components)
-├── pages/        # Dashboard sections — one file per collaborator
+├── sections/     # Dashboard sections
 └── assets/       # Static files (logo, images, styles)
 ```
 
